@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://unpkg.com/htmx.org@1.8.5"></script>
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <a href="{% url 'radhatamapp:index' %}">Go back</a>
+    <!-- <img  src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/ajax-loader.gif"/> -->
+    <div id="indicator" class="htmx-indicator alert alert-success" role="alert">
+        Saved
+    </div>
+    <br>
+    <h2>Create/Enrich Entity Entities</h2>
+    {% if not entity %}
+    <form action="{% url 'radhatamapp:entity' action='create' id=0%}" method="POST" class="post-form"
+        enctype="multipart/form-data">
+        {%csrf_token%}
+        {{form}}
+        <input type="submit" />
+    </form>
+    {% endif %}
+    {{entity}}
+    <table id="table">
+        {% for field in fields %}
+        <tr>
+            <td>{{field}}</td>
+            <td>
+                <select hx-indicator="#indicator" hx-trigger="change" hx-swap="none" name="{{field.name}}"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-post="{% url 'radhatamapp:edit_fieldtype' id=field.id %}">
+
+                    {% for dtype in dtypes %}
+                    <option {% if field.datatype == dtype.0 %} selected {% endif %} value={{dtype.0}}>
+                        {{dtype.1}} </option>
+                    {% endfor %}
+
+                </select>
+            </td>
+        </tr>
+        {% endfor %}
+
+       
+    </table>
+    
+    {% if entity %}
+    <form hx-indicator="#indicator" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+    hx-post="{% url 'radhatamapp:entity' action='add_calculated_field' id=entity.id %}">
+
+    <span class="">Derived Field</span>
+    <input type="number" hidden name="level_field" value="{{level_field}}" />
+    <select hx-indicator="#indicator" hx-trigger="change" name="function_id"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+        hx-post="{% url 'radhatamapp:datascience' action='get_function_params' id=entity.id %}"
+        hx-target="#function-form">
+        <option></option>
+        {% for function in functions_calculated_meta %}
+
+        <option value="{{function.id}}">{{function.name}}</option>
+        {% endfor %}
+
+
+    </select>
+    <div id="function-form"></div>
+    <!-- <a href="{% url 'radhatamapp:datascience' action='add_derived_column' id=entity.id %}">Add Derived Fields</a> -->
+    <button type="submit">Add</button>
+</form>
+<tr><td><button hx-indicator="#indicator" hx-swap="none" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+    hx-post="{% url 'radhatamapp:entity' action='create_table' id=entity.id %}">Create Table </button></td></tr>
+
+    {% endif %}
+
+    <h2>Upload Data</h2>
+    {% if entity %}
+
+
+
+    <form action="{% url 'radhatamapp:entity' action='uploaddata' id=entity.id%}" method="POST" class="post-form"
+        enctype="multipart/form-data">
+        {%csrf_token%}
+        {{dataupload_form}}
+        <input type="submit" />
+    </form>
+    {% endif %}
+
+    <h2>Children</h2>
+    {% for field in fields %}
+    {{field}}
+    {% endfor %}
+   
+
+    {% if entity %}
+
+
+   <h2>Add Child</h2>
+   <form hx-post="{% url 'radhatamapp:entity' action='add_child' id=entity.id %}">
+    {%csrf_token%}
+
+    <select name="parent_field_id">
+        <option></option>
+        {% for field in fields %}
+        <option value={{field.id}}>{{field.name}} </option>
+        {% endfor %}
+    </select>
+
+    <select hx-target="#select-field" hx-indicator="#indicator" hx-trigger="change" name="child_entity_id"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+        hx-post="{% url 'radhatamapp:entity' action='add_child' id=entity.id %}">
+        <option></option>
+        {% for entity in entities %}
+        <option {% if entity.name == entity.child %} selected {% endif %} value={{entity.id}}>{{entity.name}} </option>
+        {% endfor %}
+    </select>
+
+    <select id="select-field" name="child_field_id"></select>
+    <button type="submit">Submit</button>
+    
+</form>
+
+{% endif %}
+</body>
+
+</html>
