@@ -183,4 +183,5 @@ cython_debug/
 
 # Custom
 secrets/
+localfolder/
 >>>>>>> 68c4f754384df180bc1a416123856bc0a00eedfe
