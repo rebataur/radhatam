@@ -18,7 +18,6 @@ FIELD_TYPES = (
 
 )
 
-
 FUNCTION_TYPES = (
     ('CALCULATION', 'Calculation'),
     ('VISUALIZE', 'Visualize'),
@@ -100,7 +99,7 @@ class FieldFilter(models.Model):
 class DerivedFieldArgument(models.Model):
     field = models.ForeignKey(Field, on_delete=models.CASCADE, null=True)
     argument_name = models.CharField(max_length=30, null=True)
-    argument_value = models.CharField(max_length=30, null=True)
+    argument_value = models.CharField(max_length=120, null=True)
     argument_type = models.CharField(max_length=30, null=True)
 
     def __str__(self):

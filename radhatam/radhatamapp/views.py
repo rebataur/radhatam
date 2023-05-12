@@ -36,7 +36,7 @@ def index(request):
     return render(request, 'radhatamapp/index.html', context={'entities': entities})
 
 
-def entity(request, action, id):
+def datastructure(request, action, id):
     data = {}
     entity = None
     fields = None
@@ -49,7 +49,7 @@ def entity(request, action, id):
         form = UploadFileForm()
         dataupload_form = UploadFileDataForm()
         entities = Entity.objects.exclude(id=id).all()
-        return render(request, "radhatamapp/entity.html", context={'form': form, 'entity': entity, 'entities': entities, 'fields': fields, 'dtypes': DATA_TYPES, 'dataupload_form': dataupload_form,'functions_calculated_meta':functions_calculated_meta})
+        return render(request, "radhatamapp/datastructure.html", context={'form': form, 'entity': entity, 'entities': entities, 'fields': fields, 'dtypes': DATA_TYPES, 'dataupload_form': dataupload_form,'functions_calculated_meta':functions_calculated_meta})
     # if not GET, then proceed
     if action == 'create':
         try:
@@ -73,7 +73,7 @@ def entity(request, action, id):
             Field.objects.create(
                 actual_name=f'{entity.name}_file_name',
                 name=f'{entity.name}_file_name', entity=entity).save()
-            return HttpResponseRedirect(f'/entity/display/{entity.id}')
+            return HttpResponseRedirect(f'/datastructure/display/{entity.id}')
         # return HttpResponseRedirect(reverse("radhatamapp:create_entity"))
 
         except Exception as e:
@@ -181,7 +181,7 @@ def entity(request, action, id):
             logging.getLogger("error_logger").error(
                 "Unable to upload file. "+repr(e))
             messages.error(request, "Unable to upload file. "+repr(e))
-        return HttpResponseRedirect(f'/entity/display/{id}')
+        return HttpResponseRedirect(f'/datastructure/display/{id}')
     if action == 'add_child':
         print(request.POST)
         if request.POST['child_entity_id'] and not request.POST['child_field_id']:
@@ -203,7 +203,7 @@ def entity(request, action, id):
 
             # field = Field.objects.get(id=parent)
         return HttpResponse("done")
-    return HttpResponseRedirect(reverse("radhatamapp:entity", kwargs={'action': 'display', 'id': id}))
+    return HttpResponseRedirect(reverse("radhatamapp:datastructure", kwargs={'action': 'display', 'id': id}))
 
 
 def edit_fieldtype(request, id):
@@ -221,7 +221,7 @@ def edit_fieldtype(request, id):
         return HttpResponse("<option>selected</option>")
 
 
-def datascience(request, action, id):
+def dataprep(request, action, id):
     print("***********************************")
     print(action, id)
     print("***********************************")
@@ -280,7 +280,7 @@ def datascience(request, action, id):
             for field_filter in field_filter_array:
                 FieldFilter.objects.create(
                     entity=entity, filter_col=field_filter['filter_col'], filter_op=field_filter['filter_op'], filter_val=field_filter['filter_val'])
-            return HttpResponseRedirect(f'/datascience/display/{entity.id}')
+            return HttpResponseRedirect(f'/dataprep/display/{entity.id}')
         # get all filters
         # fieldFilters = FieldFilter.objects.filter(field__entity=entity)
         # print(fieldFilters)
@@ -307,10 +307,14 @@ def datascience(request, action, id):
         eda = None
         if action == 'visualize':
             # df = pd.read_csv('C:\\3Projects\\newstockup\\indexes\\sensex_historical_gen.csv',parse_dates=['Date'])
+            print("=========VISUALIZE SQL ==========================")
+            # print(full_data_sql +  " where trade_date = '2023-05-09'")
+            # full_data_sql = full_data_sql +  " where trade_date = '2023-05-09'"
             df = pd.read_sql(full_data_sql, engine)
+
             eda  = pyg.walk(df,hiddenDataSourceConfig=True, vegaTheme='vega',return_html=True)
         print("available_functions",available_functions)
-        return render(request, "radhatamapp/datascience.html",
+        return render(request, "radhatamapp/dataprep.html",
                       context={'entity': entity, 'fields': fields, 'data': data,
                                'col_names': col_names, 'level_field': level_field+1,
                                'available_functions': available_functions,
@@ -400,6 +404,193 @@ def datascience(request, action, id):
         html = f'<span class="badge text-bg-primary">{function.name}</span>'
         return HttpResponse(html)
 
+
+def dataviz(request, action, id):
+    print("***********************************")
+    print(action, id)
+    print("***********************************")
+    data = {}
+    entity = Entity.objects.get(id=id)
+    if "GET" == request.method:
+      
+
+        fields = Field.objects.filter(
+            entity=entity, derived_level__gte=1).order_by('derived_level')
+        print(fields)
+
+        data_sql = generate_cte_sql(id)
+        create_meta_table(entity.name, data_sql)
+
+        full_data_sql = generate_action_sql(data_sql, id, action)
+        data, col_names = fetch_raw_query(full_data_sql)
+        entity_columns_meta = get_table_columns(f"{entity.name}_meta")
+        level_field = get_level_of_fields(id)
+        available_functions = FunctionMeta.objects.filter().exclude(type='GENERATED')
+        print(available_functions,'===========')
+        # functions_viz_meta = FunctionMeta.objects.filter(type='VISUALIZATION')
+        # functions_ds_meta = FunctionMeta.objects.filter(type='DATASCIENCE')
+
+        filters = FieldFilter.objects.filter(entity=entity)
+
+        if action == 'apply_table_filter':
+            print(request.GET)
+            fieldFilters = FieldFilter.objects.filter(entity=entity)
+            new_filter_col = request.GET.get('filter_col_0')
+            new_filter_op = request.GET.get('filter_op_0')
+            new_filter_val = request.GET.get('filter_val_0')
+            print(new_filter_col, new_filter_op, new_filter_val)
+
+            field_filter_array = []
+            if new_filter_col and new_filter_op and new_filter_val:
+                field_filter_array = [{'filter_col': new_filter_col,
+                                       'filter_op': new_filter_op, 'filter_val': new_filter_val}]
+
+            for fieldFilter in fieldFilters:
+                new_filter_col = request.GET.get(
+                    f'filter_col_{fieldFilter.id}')
+                new_filter_op = request.GET.get(f'filter_op_{fieldFilter.id}')
+                new_filter_val = request.GET.get(
+                    f'filter_val_{fieldFilter.id}')
+                if new_filter_col and new_filter_op and new_filter_val:
+                    field_filter_array.append(
+                        {'filter_col': new_filter_col, 'filter_op': new_filter_op, 'filter_val': new_filter_val})
+            print(field_filter_array)
+
+            # Delete previous objects
+            if (new_filter_col and new_filter_op and new_filter_val) or field_filter_array:
+                FieldFilter.objects.filter(entity=entity).delete()
+
+            # # create all new
+            for field_filter in field_filter_array:
+                FieldFilter.objects.create(
+                    entity=entity, filter_col=field_filter['filter_col'], filter_op=field_filter['filter_op'], filter_val=field_filter['filter_val'])
+            return HttpResponseRedirect(f'/dataviz/display/{entity.id}')
+        # get all filters
+        # fieldFilters = FieldFilter.objects.filter(field__entity=entity)
+        # print(fieldFilters)
+        # if not GET, then proceed
+
+        # Filter form for table
+
+        # if action == 'get_filter_form':
+        #     field = request.GET.get('field')
+        #     html = f'<label>{field} = </label>'
+        #     field_data_sql = generate_cte_sql(entity.id, field)
+
+        #     field_data = fetch_raw_query(field_data_sql)
+        #     html += '<select><option></option>'
+        #     for fd in field_data[0]:
+        #         html += f'<option>{fd[0]}</option>'
+        #     html += '</select>'
+        #     return HttpResponse(html)
+
+        # check what is the level of fields in entity
+
+
+        # PG Walker
+        eda = None
+        if action == 'visualize':
+            # df = pd.read_csv('C:\\3Projects\\newstockup\\indexes\\sensex_historical_gen.csv',parse_dates=['Date'])
+            print("=========VISUALIZE SQL ==========================")
+            # print(full_data_sql +  " where trade_date = '2023-05-09'")
+            # full_data_sql = full_data_sql +  " where trade_date = '2023-05-09'"
+            df = pd.read_sql(full_data_sql, engine)
+
+            eda  = pyg.walk(df,hiddenDataSourceConfig=True, vegaTheme='vega',return_html=True)
+        print("available_functions",available_functions)
+        return render(request, "radhatamapp/dataviz.html",
+                      context={'entity': entity, 'fields': fields, 'data': data,
+                               'col_names': col_names, 'level_field': level_field+1,
+                               'available_functions': available_functions,
+                               'filters': filters,
+                               'entity_columns_meta': entity_columns_meta,
+                               'action': action,
+                               'eda':eda
+                               })
+
+    if action == 'delete_filter':
+        field_filter_id = request.GET.get('filter_id')
+        FieldFilter.objects.get(id=field_filter_id).delete()
+        return HttpResponse('deleted')
+
+    if action == 'apply_filter':
+        print(request.POST)
+        fieldFilters = FieldFilter.objects.filter(entity=entity)
+        new_filter_col = request.POST['filter_col_0']
+        new_filter_op = request.POST['filter_op_0']
+        new_filter_val = request.POST['filter_val_0']
+        print(new_filter_col, new_filter_op, new_filter_val)
+        field_filter_array = [{'filter_col': new_filter_col,
+                               'filter_op': new_filter_op, 'filter_val': new_filter_val}]
+
+        for fieldFilter in fieldFilters:
+            new_filter_col = request.POST[f'filter_col_{fieldFilter.id}']
+            new_filter_op = request.POST[f'filter_op_{fieldFilter.id}']
+            new_filter_val = request.POST[f'filter_val_{fieldFilter.id}']
+            field_filter_array.append(
+                {'filter_col': new_filter_col, 'filter_op': new_filter_op, 'filter_val': new_filter_val})
+        print(field_filter_array)
+        # Delete previous objects
+        # FieldFilter.objects.filter(entity=entity).delete()
+
+        # # create all new
+        for field_filter in field_filter_array:
+            FieldFilter.objects.create(
+                entity=entity, filter_col=field_filter['filter_col'], filter_op=field_filter['filter_op'], filter_val=field_filter['filter_val'])
+        return HttpResponse('ok')
+    if action == 'get_function_params':
+        try:
+            function_id = request.POST['function_id']
+            function_meta = FunctionMeta.objects.get(id=function_id)
+            arguments_meta = ArgumentMeta.objects.filter(
+                function__id=function_id)
+            entity_columns_meta = get_table_columns(f"{entity.name}_meta")
+            entity_columns_names = [col['name'] for col in entity_columns_meta]
+            html = '<label>Field Name</label><input type="text" name="derived_field_name"/>'
+            for arg in arguments_meta:
+                html += f'<label>{arg.name}</label>'
+                if arg.type == 'COLUMN':
+                    html += f'<select name={arg.name}>'
+                    for entity_col in entity_columns_names:
+                        html += f'<option value="{entity_col}">{entity_col}</option>'
+                    html += '</select>'
+                else:
+                    html += f'<input type="{arg.type}" name="{arg.name}"/>'
+            return HttpResponse(html)
+        except Exception as e:
+            logging.getLogger("error_logger").error(
+                "Unable to upload file. "+repr(e))
+            messages.error(request, "Unable to upload file. "+repr(e))
+
+    if action == 'add_derived_field':
+        derived_field_name = request.POST['derived_field_name']
+        function_id = request.POST['function_id']
+        level_field = request.POST['level_field']
+
+        function = FunctionMeta.objects.get(id=function_id)
+        arguments_meta = ArgumentMeta.objects.filter(
+            function__id=function_id)
+        provided_argument = []
+        for arg in arguments_meta:
+            val = request.POST[arg.name]
+            provided_argument.append(
+                {"name": arg.name, "value": val, "type": arg.type})
+
+        # argument_type = models.CharField(max_length=30, null=True)
+        # create the derived field
+        # field_level = get_level_of_fields(entity.id)
+        derived_field = Field.objects.create(
+            actual_name=derived_field_name, name=derived_field_name, entity=entity, type='DERIVED', datatype=function.return_type ,derived_level=level_field, function=function)
+        derived_field.save()
+        for parg in provided_argument:
+            DerivedFieldArgument.objects.create(
+                field=derived_field, argument_name=parg['name'], argument_value=parg['value'], argument_type=parg['type']).save()
+        html = f'<span class="badge text-bg-primary">{function.name}</span>'
+        return HttpResponse(html)
+
+
+def dataalerts(request,action,id):
+    return render(request, 'radhatamapp/dataalerts.html', context={'entities': {}})
 
 def handle_uploaded_file(f):
     with open('some/file/name.txt', 'wb+') as destination:
@@ -542,8 +733,7 @@ def generate_cte_sql(id, action=None):
                 derived_values = {
                     d.argument_name: d.argument_value for d in derived_field_arguments}
                 derived_values['name'] = field.name
-                derived_function_sql = function_meta.return_sql.format(
-                    **derived_values)
+                derived_function_sql = function_meta.return_sql.format(**derived_values)
 
                 data_sql += f'{derived_function_sql},'
 

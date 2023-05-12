@@ -7,14 +7,14 @@
     <title>Document</title>
 </head>
 <body>
-    <a href="{% url 'radhatamapp:entity' action='create' id=0 %}">Create/Enrich Entity</a>
+    <a href="{% url 'radhatamapp:datastructure' action='create' id=0 %}">Create/Enrich Data Structure</a>
     <h1>{{result}}</h1>
-    <h2>Entities</h2>
+    <h2>Data Structure</h2>
     <table>
        
             {% for entity in entities%}
             <tr>
-            <td><a href="{% url 'radhatamapp:entity' action='display' id=entity.id %}">{{entity}}</a></td>
+            <td><a href="{% url 'radhatamapp:datastructure' action='display' id=entity.id %}">{{entity}}</a></td>
         </tr>
             {% endfor %}
  
@@ -27,12 +27,37 @@
        
             {% for entity in entities%}
             <tr>
-            <td><a href="{% url 'radhatamapp:datascience' action='display' id=entity.id %}">{{entity}}</a></td>
+            <td><a href="{% url 'radhatamapp:dataprep' action='display' id=entity.id %}">{{entity}}</a></td>
         </tr>
             {% endfor %}
  
         
     </table>
+
+    <h2>Data Viz</h2>
+    <table>
+       
+            {% for entity in entities%}
+            <tr>
+            <td><a href="{% url 'radhatamapp:dataviz' action='display' id=entity.id %}">{{entity}}</a></td>
+        </tr>
+            {% endfor %}
+ 
+        
+    </table>
+
+    <h2>Data Alerts</h2>
+    <table>
+       
+            {% for entity in entities%}
+            <tr>
+            <td><a href="{% url 'radhatamapp:dataalerts' action='display' id=entity.id %}">{{entity}}</a></td>
+        </tr>
+            {% endfor %}
+ 
+        
+    </table>
+
 
 </body>
 </html>

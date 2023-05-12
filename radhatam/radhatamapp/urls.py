@@ -21,7 +21,9 @@ app_name = 'radhatamapp'
 
 urlpatterns = [
     path('', views.index, name="index"),
-    path('entity/<str:action>/<int:id>', views.entity, name='entity'),
-    path('datascience/<str:action>/<int:id>', views.datascience, name='datascience'),
+    path('datastructure/<str:action>/<int:id>', views.datastructure, name='datastructure'),
+    path('dataprep/<str:action>/<int:id>', views.dataprep, name='dataprep'),
     path('edit_fieldtype/<int:id>', views.edit_fieldtype, name='edit_fieldtype'),
+    path('dataviz/<str:action>/<int:id>', views.dataviz, name='dataviz'),
+    path('dataalerts/<str:action>/<int:id>', views.dataalerts, name='dataalerts'),
 ]
