@@ -281,39 +281,6 @@ def dataprep(request, action, id):
                 FieldFilter.objects.create(
                     entity=entity, filter_col=field_filter['filter_col'], filter_op=field_filter['filter_op'], filter_val=field_filter['filter_val'])
             return HttpResponseRedirect(f'/dataprep/display/{entity.id}')
-        # get all filters
-        # fieldFilters = FieldFilter.objects.filter(field__entity=entity)
-        # print(fieldFilters)
-        # if not GET, then proceed
-
-        # Filter form for table
-
-        # if action == 'get_filter_form':
-        #     field = request.GET.get('field')
-        #     html = f'<label>{field} = </label>'
-        #     field_data_sql = generate_cte_sql(entity.id, field)
-
-        #     field_data = fetch_raw_query(field_data_sql)
-        #     html += '<select><option></option>'
-        #     for fd in field_data[0]:
-        #         html += f'<option>{fd[0]}</option>'
-        #     html += '</select>'
-        #     return HttpResponse(html)
-
-        # check what is the level of fields in entity
-
-
-        # PG Walker
-        eda = None
-        if action == 'visualize':
-            # df = pd.read_csv('C:\\3Projects\\newstockup\\indexes\\sensex_historical_gen.csv',parse_dates=['Date'])
-            print("=========VISUALIZE SQL ==========================")
-            # print(full_data_sql +  " where trade_date = '2023-05-09'")
-            # full_data_sql = full_data_sql +  " where trade_date = '2023-05-09'"
-            df = pd.read_sql(full_data_sql, engine)
-
-            eda  = pyg.walk(df,hiddenDataSourceConfig=True, vegaTheme='vega',return_html=True)
-        print("available_functions",available_functions)
         return render(request, "radhatamapp/dataprep.html",
                       context={'entity': entity, 'fields': fields, 'data': data,
                                'col_names': col_names, 'level_field': level_field+1,
@@ -321,7 +288,6 @@ def dataprep(request, action, id):
                                'filters': filters,
                                'entity_columns_meta': entity_columns_meta,
                                'action': action,
-                               'eda':eda
                                })
 
     if action == 'delete_filter':
@@ -465,39 +431,16 @@ def dataviz(request, action, id):
                 FieldFilter.objects.create(
                     entity=entity, filter_col=field_filter['filter_col'], filter_op=field_filter['filter_op'], filter_val=field_filter['filter_val'])
             return HttpResponseRedirect(f'/dataviz/display/{entity.id}')
-        # get all filters
-        # fieldFilters = FieldFilter.objects.filter(field__entity=entity)
-        # print(fieldFilters)
-        # if not GET, then proceed
-
-        # Filter form for table
-
-        # if action == 'get_filter_form':
-        #     field = request.GET.get('field')
-        #     html = f'<label>{field} = </label>'
-        #     field_data_sql = generate_cte_sql(entity.id, field)
-
-        #     field_data = fetch_raw_query(field_data_sql)
-        #     html += '<select><option></option>'
-        #     for fd in field_data[0]:
-        #         html += f'<option>{fd[0]}</option>'
-        #     html += '</select>'
-        #     return HttpResponse(html)
-
-        # check what is the level of fields in entity
-
-
         # PG Walker
         eda = None
         if action == 'visualize':
             # df = pd.read_csv('C:\\3Projects\\newstockup\\indexes\\sensex_historical_gen.csv',parse_dates=['Date'])
             print("=========VISUALIZE SQL ==========================")
-            # print(full_data_sql +  " where trade_date = '2023-05-09'")
+            print(full_data_sql)
             # full_data_sql = full_data_sql +  " where trade_date = '2023-05-09'"
             df = pd.read_sql(full_data_sql, engine)
 
             eda  = pyg.walk(df,hiddenDataSourceConfig=True, vegaTheme='vega',return_html=True)
-        print("available_functions",available_functions)
         return render(request, "radhatamapp/dataviz.html",
                       context={'entity': entity, 'fields': fields, 'data': data,
                                'col_names': col_names, 'level_field': level_field+1,
@@ -775,7 +718,7 @@ def generate_action_sql(sql, id, action=None):
     print(where_list)
 
    
-    if action == 'display' and where_list:
+    if where_list and (action == 'display' or action  == 'visualize'):
         sql += f" where {where_list}"
     else:
         sql += f" limit 500 "
