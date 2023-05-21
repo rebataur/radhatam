@@ -531,6 +531,74 @@ def dataviz(request, action, id):
         html = f'<span class="badge text-bg-primary">{function.name}</span>'
         return HttpResponse(html)
 
+def fieldfunction(request,action,id):
+    print(request,action,id)
+    function = None
+    args_meta = None
+    if id:
+        function = FunctionMeta.objects.get(id=id)
+        args_meta = ArgumentMeta.objects.filter(function=function)
+    else:
+        function = FunctionMeta()
+        args_meta = ArgumentMeta()
+
+    if "GET" == request.method:
+        pass
+
+    if "POST" == request.method:
+     
+        if action == 'createderived' or action == 'createcalculated':
+            action_keys = {'createderived':'DERIVED','createcalculated':'GENERATED'}
+            function_name = request.POST['name']
+            func = FunctionMeta.objects.create(name=function_name,type=action_keys[action],return_type='TEXT')
+            func.save()
+            return HttpResponseRedirect(f'/fieldfunction/edit/{func.id}')
+
+        if action == 'edit':
+            form_params = request.POST
+            name = form_params['name']
+            return_type = form_params['return_type']
+            return_sql = form_params['return_sql']
+            function_code = form_params['function_code']
+
+            
+            function = FunctionMeta.objects.get(id=id)
+            function.name = name
+            function.return_type = return_type
+            function.return_sql = return_sql
+            function.function_code = function_code
+            function.save()
+
+        if action == 'change_param_datatype':
+            print(request.POST)
+            param_name = request.POST['param_name']
+            
+            if param_name == 'new_parameter':
+                # HTMX Does not pass field id
+                field_id = request.POST['new_parameter_field_id']
+                new_parameter_name = request.POST['new_parameter_name']
+                param_type = request.POST['param-name-id-null']                
+                function = FunctionMeta.objects.get(id=id)
+                arg_meta = ArgumentMeta(function=function,name=new_parameter_name,type=param_type)
+                arg_meta.save()
+                print('saved',new_parameter_name,param_type)
+                return HttpResponse()
+            key = list(request.POST.keys())[3]
+            type = request.POST[key]
+           
+            args_id = key.split('param-name-id-')[1]
+            arg_meta = ArgumentMeta.objects.get(id=args_id)
+            if type == 'DELETE':
+                arg_meta.delete()
+                return HttpResponse()
+            arg_meta.type = type
+            arg_meta.save()
+            return HttpResponse()
+    
+        return HttpResponseRedirect(f'/fieldfunction/edit/{id}')
+        
+        
+    return render(request,'radhatamapp/fieldfunction.html', context={'function':function,'args_meta':args_meta,'action':action})
 
 def dataalerts(request,action,id):
     return render(request, 'radhatamapp/dataalerts.html', context={'entities': {}})
@@ -749,3 +817,5 @@ def get_table_columns(tname):
     for col in table_cols[0]:
         cols.append({"name": col[0], 'type': col[1]})
     return cols
+
+

@@ -51,7 +51,7 @@ class FunctionMeta(models.Model):
         max_length=20, choices=DATA_TYPES, default='TEXT')
     
     function_code = models.TextField()
-    return_sql = models.CharField(max_length=1024)
+    return_sql = models.TextField(max_length=1024)
 
     def __str__(self):
         return self.name
@@ -78,7 +78,7 @@ class Field(models.Model):
     child_field_id = models.IntegerField(null=True)
     derived_level = models.IntegerField(default=0)
     function = models.ForeignKey(
-        FunctionMeta, on_delete=models.DO_NOTHING, null=True)
+        FunctionMeta, on_delete=models.CASCADE, null=True)
     # order = models.IntegerField()
 
     def __str__(self):

@@ -1,15 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <a href="{% url 'radhatamapp:datastructure' action='create' id=0 %}">Create/Enrich Data Structure</a>
+{% extends 'radhatamapp/base.html'%}
+{% block content %}
     <h1>{{result}}</h1>
-    <h2>Data Structure</h2>
+    <h4>Data Structure<a href="{% url 'radhatamapp:datastructure' action='create' id=0 %}">[+]</a></h4>
+      
+  
     <table>
        
             {% for entity in entities%}
@@ -22,7 +16,7 @@
     </table>
 
 
-    <h2>Data Prep</h2>
+    <h4>Data Prep</h4>
     <table>
        
             {% for entity in entities%}
@@ -34,7 +28,7 @@
         
     </table>
 
-    <h2>Data Viz</h2>
+    <h4>Data Viz</h4>
     <table>
        
             {% for entity in entities%}
@@ -46,7 +40,7 @@
         
     </table>
 
-    <h2>Data Alerts (Coming Soon)</h2>
+    <h4>Data Alerts (Coming Soon)</h4>
     <table>
        
             {% for entity in entities%}
@@ -59,5 +53,4 @@
     </table>
 
 
-</body>
-</html>
+{% endblock %}

@@ -26,4 +26,7 @@ urlpatterns = [
     path('edit_fieldtype/<int:id>', views.edit_fieldtype, name='edit_fieldtype'),
     path('dataviz/<str:action>/<int:id>', views.dataviz, name='dataviz'),
     path('dataalerts/<str:action>/<int:id>', views.dataalerts, name='dataalerts'),
+
+    path('fieldfunction/<str:action>/<int:id>', views.fieldfunction, name='fieldfunction'),
+    
 ]
