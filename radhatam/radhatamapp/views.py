@@ -562,12 +562,14 @@ def fieldfunction(request,action,id):
             function_code = form_params['function_code']
 
             
-            function = FunctionMeta.objects.get(id=id)
+            function =   FunctionMeta.objects.get(id=id)
             function.name = name
             function.return_type = return_type
             function.return_sql = return_sql
             function.function_code = function_code
             function.save()
+            if function_code and len(function_code) > 0:
+                execute_raw_query(function_code)
 
         if action == 'change_param_datatype':
             print(request.POST)
