@@ -103,6 +103,6 @@ class DerivedFieldArgument(models.Model):
     argument_type = models.CharField(max_length=30, null=True)
 
     def __str__(self):
-        return self.field.name + " -> " + self.argument_name + " " + self.argument_value + " " + self.argument_type
+        return str(self.id) + " " + self.field.name + " -> " + self.argument_name + " " + self.argument_value + " " + self.argument_type
 
 

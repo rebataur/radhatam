@@ -130,7 +130,9 @@ def datastructure(request, action, id):
             else:
                 sql += f"{field.name} {field.datatype},"
 
-        sql = f"{sql[:-1]})"
+        # add created_at and refreshed_at
+        sql += "created_at TIMESTAMP default now(),refreshed_at TIMESTAMP default now())"
+        # sql = f"{sql[:-1]})"
         print(sql)
         execute_raw_query(f"drop table if exists {entity.name}")
         print(entity.name, ' DR')
@@ -229,16 +231,32 @@ def dataprep(request, action, id):
     entity = Entity.objects.get(id=id)
     if "GET" == request.method:
       
-
+        # tree view of all fields level wise
         fields = Field.objects.filter(
             entity=entity, derived_level__gte=1).order_by('derived_level')
         print(fields)
+
+        derived_tree = {}
+        level = 1      
+        field_arr = []
+        for field in fields:
+            print(field.derived_level,level)
+            if field.derived_level == level:
+                field_arr.append(field)
+            else:                
+              
+                field_arr = [field]
+                level += 1
+            derived_tree[f'{level}'] = field_arr
+        print("DERIVED TREE")
+        print(derived_tree)
+        # return HttpResponse("hello")
 
         data_sql = generate_cte_sql(id)
         create_meta_table(entity.name, data_sql)
 
         full_data_sql = generate_action_sql(data_sql, id, action)
-        data, col_names = fetch_raw_query(full_data_sql)
+        data, col_names,msg = fetch_raw_query(full_data_sql)        
         entity_columns_meta = get_table_columns(f"{entity.name}_meta")
         level_field = get_level_of_fields(id)
         available_functions = FunctionMeta.objects.filter().exclude(type='GENERATED')
@@ -288,6 +306,8 @@ def dataprep(request, action, id):
                                'filters': filters,
                                'entity_columns_meta': entity_columns_meta,
                                'action': action,
+                               'derived_tree':derived_tree,
+                               'msg':msg
                                })
 
     if action == 'delete_filter':
@@ -320,29 +340,68 @@ def dataprep(request, action, id):
             FieldFilter.objects.create(
                 entity=entity, filter_col=field_filter['filter_col'], filter_op=field_filter['filter_op'], filter_val=field_filter['filter_val'])
         return HttpResponse('ok')
-    if action == 'get_function_params':
-        try:
-            function_id = request.POST['function_id']
-            function_meta = FunctionMeta.objects.get(id=function_id)
-            arguments_meta = ArgumentMeta.objects.filter(
-                function__id=function_id)
-            entity_columns_meta = get_table_columns(f"{entity.name}_meta")
-            entity_columns_names = [col['name'] for col in entity_columns_meta]
-            html = '<label>Field Name</label><input type="text" name="derived_field_name"/>'
-            for arg in arguments_meta:
-                html += f'<label>{arg.name}</label>'
-                if arg.type == 'COLUMN':
-                    html += f'<select name={arg.name}>'
-                    for entity_col in entity_columns_names:
-                        html += f'<option value="{entity_col}">{entity_col}</option>'
-                    html += '</select>'
-                else:
-                    html += f'<input type="{arg.type}" name="{arg.name}"/>'
-            return HttpResponse(html)
-        except Exception as e:
-            logging.getLogger("error_logger").error(
-                "Unable to upload file. "+repr(e))
-            messages.error(request, "Unable to upload file. "+repr(e))
+    if action == 'get_function_params' or action == 'get_function_params_with_values' or action == 'get_function_params_with_value_update':
+        if action == 'get_function_params_with_value_update':
+            print("********************VALUE UPDATE ")
+            if request.POST.getlist('submit_action_delete'):
+                arg_id = request.POST.getlist('derived_field_arguments')[0]                
+                derived_field_arg = DerivedFieldArgument.objects.get(id=int(arg_id))
+                field_id = derived_field_arg.field.id
+                Field.objects.get(id=field_id).delete()
+                return HttpResponse('Deleted')
+            
+            print(request.POST)
+            print( request.POST.getlist('derived_field_arguments'))            
+            for arg_id in request.POST.getlist('derived_field_arguments'):
+                print(arg_id)
+                derived_field_arg = DerivedFieldArgument.objects.get(id=int(arg_id))
+                derived_field_arg.argument_value = request.POST[derived_field_arg.argument_name]
+                derived_field_arg.save()
+                
+            return HttpResponse('Saved')
+        if action == 'get_function_params_with_values':
+            
+            try:
+                field_functions_id = request.GET['field_id']
+
+                field = Field.objects.get(id=field_functions_id)
+                print(field)
+                function_id = field.function.id                
+                function_meta = FunctionMeta.objects.get(id=function_id)
+                arguments_meta = ArgumentMeta.objects.filter(
+                    function__id=function_id)
+                derived_field = DerivedFieldArgument.objects.filter(field=field.id)
+                entity_columns_meta = get_table_columns(f"{entity.name}_meta")
+                entity_columns_names = [col['name'] for col in entity_columns_meta]
+                return render(request,'radhatamapp/dataprep/existingfuncform.html', context = {'field_functions_id':field_functions_id,'entity':entity,'field':field,'derived_field':derived_field,'entity_columns_names':entity_columns_names})
+            except Exception as e:
+                logging.getLogger("error_logger").error(
+                    "Unable to upload file. "+repr(e))
+                messages.error(request, "Unable to upload file. "+repr(e))
+
+        else:
+            try:
+                function_id = request.POST['function_id']
+                function_meta = FunctionMeta.objects.get(id=function_id)
+                arguments_meta = ArgumentMeta.objects.filter(
+                    function__id=function_id)
+                entity_columns_meta = get_table_columns(f"{entity.name}_meta")
+                entity_columns_names = [col['name'] for col in entity_columns_meta]
+                html = '<label>Field Name</label><input type="text" name="derived_field_name"/>'
+                for arg in arguments_meta:
+                    html += f'<label>{arg.name}</label>'
+                    if arg.type == 'COLUMN':
+                        html += f'<select name={arg.name}>'
+                        for entity_col in entity_columns_names:
+                            html += f'<option value="{entity_col}">{entity_col}</option>'
+                        html += '</select>'
+                    else:
+                        html += f'<input type="{arg.type}" name="{arg.name}"/>'
+                return HttpResponse(html)
+            except Exception as e:
+                logging.getLogger("error_logger").error(
+                    "Unable to upload file. "+repr(e))
+                messages.error(request, "Unable to upload file. "+repr(e))
 
     if action == 'add_derived_field':
         derived_field_name = request.POST['derived_field_name']
@@ -535,6 +594,7 @@ def fieldfunction(request,action,id):
     print(request,action,id)
     function = None
     args_meta = None
+    function_all = None
     if id:
         function = FunctionMeta.objects.get(id=id)
         args_meta = ArgumentMeta.objects.filter(function=function)
@@ -543,7 +603,8 @@ def fieldfunction(request,action,id):
         args_meta = ArgumentMeta()
 
     if "GET" == request.method:
-        pass
+        if action == 'display' and id == 0:
+            function_all = FunctionMeta.objects.all()
 
     if "POST" == request.method:
      
@@ -600,7 +661,7 @@ def fieldfunction(request,action,id):
         return HttpResponseRedirect(f'/fieldfunction/edit/{id}')
         
         
-    return render(request,'radhatamapp/fieldfunction.html', context={'function':function,'args_meta':args_meta,'action':action})
+    return render(request,'radhatamapp/fieldfunction.html', context={'function_all':function_all,'function':function,'args_meta':args_meta,'action':action})
 
 def dataalerts(request,action,id):
     return render(request, 'radhatamapp/dataalerts.html', context={'entities': {}})
@@ -673,12 +734,16 @@ def execute_raw_query(sql):
 def fetch_raw_query(sql):
     print("============fetch_raw_query=====================")
     print(sql)
-    with connection.cursor() as cursor:
-        cursor.execute(sql)
-        col_names = [desc[0] for desc in cursor.description]
-        rows = cursor.fetchall()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(sql)
+            col_names = [desc[0] for desc in cursor.description]
+            rows = cursor.fetchall()
 
-    return rows, col_names
+        return rows, col_names,None
+    except Exception as e:
+        print(e)
+        return None,None,e
 
 
 def get_level_of_fields(id):

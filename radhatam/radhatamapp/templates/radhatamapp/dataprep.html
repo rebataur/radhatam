@@ -1,5 +1,49 @@
 {% extends 'radhatamapp/base.html'%}
 {% block content %}
+<style>
+    form {
+        margin-left: 1em;
+        margin-bottom: 2em;;
+    }
+
+    
+    form.tabled_form > input,
+    form.tabled_form > select,
+    form.tabled_form > textarea {
+        display: block;
+        width: 30%;
+        margin-bottom: 1em;;
+    }
+
+    form.tabled_form > div > input,
+    form.tabled_form > div > select,
+    form.tabled_form > div > textarea {
+        display: block;
+        width: 30%;
+        margin-bottom: 1em;;
+    }
+    #function_code_editor {
+        /* position: absolute; */
+        /* top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0; */
+
+        height: 1000px;
+        width: 100%;
+    }
+    #return_sql_editor {
+        /* position: absolute; */
+        /* top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0; */
+
+        height: 50px;
+        width: 100%;
+    }
+</style>
+
 
 
     <!-- Button trigger modal -->
@@ -14,90 +58,63 @@
     <div id="indicator" class="htmx-indicator alert alert-success" role="alert">
         <img src="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/AjaxLoader.gif" />
     </div>
-
+  
     <div>
         <h4>Derived Field Function<a href="{% url 'radhatamapp:fieldfunction' action='createderived' id=0 %}">[+]</a></h4>
         <div>
 
-            {% for field_functions in fields %}
-            <em>L- {{field_functions.derived_level}} {{field_functions}}</em>
-            <form hx-indicator="#indicator" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                hx-post="{% url 'radhatamapp:dataprep' action='add_derived_field' id=entity.id %}">
+            {% for k,fields in derived_tree.items %}
+                <div>Level - {{k}}
+                    {%  for field_functions in fields %}
+                    <div style="margin-left:1em;">
+                    
+                            <a href=""
+                             hx-trigger="click" 
+                             hx-target="#edit_params_{{field_functions.id}}"
+                             hx-indicator="#indicator" 
+                             hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' 
+                             hx-post="{% url 'radhatamapp:dataprep' action='get_function_params_with_values' id=entity.id %}?field_id={{field_functions.id}}">
+                             {{field_functions}}</a>
+                             <a href="{% url 'radhatamapp:fieldfunction' action='edit' id=field_functions.function.id %}">[>]</a>
+                            <div style="margin-left:2em;" id="edit_params_{{field_functions.id}}"></div>
+                        
 
-                <span class="">Level {{field_functions.derived_level}}</span>
-                <input type="number" hidden name="level_field" value="{{field_functions.derived_level}}" />
-              
-                <select hx-indicator="#indicator" hx-trigger="change" name="function_id"
-                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                    hx-post="{% url 'radhatamapp:dataprep' action='get_function_params' id=entity.id %}"
-                    hx-target="#function-form-{{field_functions.derived_level}}">
-                    <option></option>
+                    
+                    </div>
 
-                    {% for function in available_functions %}
-                    <option value="{{function.id}}">{{function.name}}</option>
+
+
+                    
                     {% endfor %}
-
-
-                </select>
-                <div id="function-form-{{field_functions.derived_level}}"></div>
-                <!-- <a href="{% url 'radhatamapp:dataprep' action='add_derived_column' id=entity.id %}">Add Derived Fields</a> -->
-                <button type="submit">Add</button>
-            </form>
+                    <form class="tabled_form" hx-indicator="#indicator" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-post="{% url 'radhatamapp:dataprep' action='add_derived_field' id=entity.id %}">
+    
+                    <input type="number" hidden name="level_field" value="{{k}}" />
+                  
+                    <select hx-indicator="#indicator" hx-trigger="change" name="function_id"
+                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                        hx-post="{% url 'radhatamapp:dataprep' action='get_function_params' id=entity.id %}"
+                        hx-target="#function-form-{{k}}">
+                        <option></option>
+    
+                        {% for function in available_functions %}
+                        <option value="{{function.id}}">{{function.name}}</option>
+                        {% endfor %}
+    
+    
+                    </select>
+                    <div id="function-form-{{k}}"></div>
+                    <!-- <a href="{% url 'radhatamapp:dataprep' action='add_derived_column' id=entity.id %}">Add Derived Fields</a> -->
+                    <button type="submit">Add+</button>
+                </form>
+                </div>
             {% endfor %}
-        </div>
-
-        <form hx-indicator="#indicator" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-            hx-post="{% url 'radhatamapp:dataprep' action='add_derived_field' id=entity.id %}">
-
-            <span class="">Level {{level_field}}</span>
-            <input type="number" hidden name="level_field" value="{{level_field}}" />
-            <select hx-indicator="#indicator" hx-trigger="change" name="function_id"
-                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                hx-post="{% url 'radhatamapp:dataprep' action='get_function_params' id=entity.id %}"
-                hx-target="#function-form">
-                <option></option>
-                {% for function in available_functions %}
-
-                <option value="{{function.id}}">{{function.name}}</option>
-                {% endfor %}
 
 
-            </select>
-            <div id="function-form"></div>
-            <!-- <a href="{% url 'radhatamapp:dataprep' action='add_derived_column' id=entity.id %}">Add Derived Fields</a> -->
-            <button type="submit">Add</button>
-        </form>
+ 
+ 
     </div>
 
-
-
-
-
-
-    <!-- Visualize -->
-    <!-- <div>
-        <form hx-indicator="#indicator" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-            hx-post="{% url 'radhatamapp:dataprep' action='visualize' id=entity.id %}">
-
-            <span class="">Visualize</span>
-            <input type="number" hidden name="level_field" value="{{level_field}}" />
-            <select hx-indicator="#indicator" hx-trigger="change" name="function_id"
-                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                hx-post="{% url 'radhatamapp:dataprep' action='get_visual_params' id=entity.id %}"
-                hx-target="#function-form">
-                <option></option>
-                {% for function in functions_viz_meta %}
-               
-                <option value="{{function.id}}">{{function.name}}</option>
-                {% endfor %}
-
-
-            </select>
-            <div id="function-form"></div>
-            <a href="{% url 'radhatamapp:dataprep' action='add_derived_column' id=entity.id %}">Add Derived Fields</a> 
-            <button type="submit">Add</button>
-        </form>
-    </div> -->
 
 
     <!-- Tabs -->
@@ -109,9 +126,9 @@
         <label> <h3>Filters</h3></label>
         <div>
            
-            <form method="GET" action="{% url 'radhatamapp:dataprep' action='apply_table_filter' id=entity.id %}">
+            <form  method="GET" action="{% url 'radhatamapp:dataprep' action='apply_table_filter' id=entity.id %}">
                 {% for filter in filters %}
-
+                
                 <div id="filter-form-{{filter.id}}">
                     <select name="filter_col_{{filter.id}}">
                         <option></option>
@@ -242,11 +259,13 @@
 
                 </div>
 
-                <button type="submit" class="btn btn-success">Apply</button>
+                <button type="submit" class="btn btn-success">Apply/Refresh</button>
             </form>
 
         </div>
-
+{% if msg %}
+{{msg}}
+{% else %}
         <table class="table">
             <thead>
 
@@ -267,6 +286,7 @@
                 {% endfor %}
             </tbody>
         </table>
+{% endif %}
     </div>
 
   

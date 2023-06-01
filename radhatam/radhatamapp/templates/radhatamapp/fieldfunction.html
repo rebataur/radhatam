@@ -44,11 +44,21 @@
     }
 </style>
 
-
-
 <h4>{{action}} Field Function</h4>
+{% if action == 'display'  %}
+    <table class="table">
+    {% for function in function_all %}
+    <tr>
+        <td>{{function.name}}</td>
+        <td>{{function.type}}</td>
+        <td>{{function.return_type}}</td>
+        <td><a href="{% url 'radhatamapp:fieldfunction' action='edit' id=function.id %}">Edit</a></td>
+    </tr>        
+    {% endfor %}
+</table>
 
-{% if action == 'createderived' or action == 'createcalculated' %}
+
+{% elif action == 'createderived' or action == 'createcalculated' %}
 <form method="POST" action="{% url 'radhatamapp:fieldfunction' action=action id=0 %}" onsubmit="onFormSubmit();">
 {% csrf_token %}
 <label>Name</label>
@@ -63,8 +73,8 @@
         <label>Name</label>
         <input type="text" value="{{function.name}}" name="name"/>
         
-        <h4>Existing Parameters</h4>      
-      
+        <h4>Existing Parameters <a href=""><small>Refresh</small></a></h4>      
+       
   
         <div style="margin-left:1em;">
         <label>Parameter Name</label>
