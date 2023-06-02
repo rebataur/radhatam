@@ -347,7 +347,15 @@ def dataprep(request, action, id):
                 arg_id = request.POST.getlist('derived_field_arguments')[0]                
                 derived_field_arg = DerivedFieldArgument.objects.get(id=int(arg_id))
                 field_id = derived_field_arg.field.id
-                Field.objects.get(id=field_id).delete()
+                field = Field.objects.get(id=field_id)
+                # if field is used in any derived field args
+
+                for args in DerivedFieldArgument.objects.all():
+                    if field.name in args.argument_value:
+                        f_id = args.field.id
+                        f = Field.objects.get(id=f_id)
+                        return HttpResponse(f"This field is used in {args.argument_name}, first delete {f}")
+                field.delete()
                 return HttpResponse('Deleted')
             
             print(request.POST)
@@ -447,7 +455,7 @@ def dataviz(request, action, id):
         create_meta_table(entity.name, data_sql)
 
         full_data_sql = generate_action_sql(data_sql, id, action)
-        data, col_names = fetch_raw_query(full_data_sql)
+        data, col_names,msg = fetch_raw_query(full_data_sql)
         entity_columns_meta = get_table_columns(f"{entity.name}_meta")
         level_field = get_level_of_fields(id)
         available_functions = FunctionMeta.objects.filter().exclude(type='GENERATED')
@@ -507,7 +515,8 @@ def dataviz(request, action, id):
                                'filters': filters,
                                'entity_columns_meta': entity_columns_meta,
                                'action': action,
-                               'eda':eda
+                               'eda':eda,
+                               'msg':msg
                                })
 
     if action == 'delete_filter':

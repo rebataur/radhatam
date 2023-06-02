@@ -18,7 +18,7 @@
     </head>
     <body>
         <h2>Radatam<a href="/">[]</a></h2>
-        <em>Build Data Science Apps Quickly</em>
+        <em>Build Data Apps with AI/ML Capabilities Quickly</em>
         <hr style="border:solid black 2px">
 {% block content%}
 
@@ -36,3 +36,11 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
     integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
     crossorigin="anonymous"></script>
+
+
+    <script>
+        function closeForm(field_function_id){
+            document.getElementById(`edit_params_${field_function_id}`).innerHTML = "";
+        }
+    
+     </script>

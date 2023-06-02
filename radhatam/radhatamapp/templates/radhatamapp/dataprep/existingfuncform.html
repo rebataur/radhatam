@@ -1,11 +1,6 @@
 
-<script>
-    function closeForm(){
-        document.getElementById("edit_params_{{field_functions_id}}").innerHTML = "";
-    }
 
- </script>
-<button onclick="closeForm();">X</button>
+<button onclick="closeForm({{field_functions_id}});" class="btn btn-outline-danger">X</button>
   <form class="tabled_form"
   hx-post="{% url 'radhatamapp:dataprep' action='get_function_params_with_value_update' id=entity.id %}?field_id={{field.id}}">
   {% csrf_token %}

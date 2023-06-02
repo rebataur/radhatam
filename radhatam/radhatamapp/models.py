@@ -70,7 +70,7 @@ class ArgumentMeta(models.Model):
 class Field(models.Model):
     entity = models.ForeignKey(Entity, on_delete=models.CASCADE, null=True)
     actual_name = models.CharField(max_length=64)
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=64,unique=True)
     main = models.BooleanField(default=False)
     datatype = models.CharField(max_length=64, choices=DATA_TYPES, default='TEXT')
     type = models.CharField(max_length=64, choices=FIELD_TYPES, default='COLUMN')
