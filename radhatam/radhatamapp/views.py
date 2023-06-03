@@ -40,6 +40,7 @@ def datastructure(request, action, id):
     data = {}
     entity = None
     fields = None
+    entities = Entity.objects.all()
     if id:
         entity = Entity.objects.get(id=id)
         fields = Field.objects.filter(entity__id=id)
@@ -48,8 +49,8 @@ def datastructure(request, action, id):
         print(functions_calculated_meta)
         form = UploadFileForm()
         dataupload_form = UploadFileDataForm()
-        entities = Entity.objects.exclude(id=id).all()
-        return render(request, "radhatamapp/datastructure.html", context={'form': form, 'entity': entity, 'entities': entities, 'fields': fields, 'dtypes': DATA_TYPES, 'dataupload_form': dataupload_form,'functions_calculated_meta':functions_calculated_meta})
+        entities_excluded = Entity.objects.exclude(id=id).all()
+        return render(request, "radhatamapp/datastructure.html", context={'entities': entities,'form': form, 'entity': entity, 'entities': entities, 'fields': fields, 'dtypes': DATA_TYPES, 'dataupload_form': dataupload_form,'functions_calculated_meta':functions_calculated_meta})
     # if not GET, then proceed
     if action == 'create':
         try:
@@ -209,6 +210,7 @@ def datastructure(request, action, id):
 
 
 def edit_fieldtype(request, id):
+    entities = Entity.objects.all()
     if "POST" == request.method:
         print(id, request.POST)
         field_name = None
@@ -224,6 +226,7 @@ def edit_fieldtype(request, id):
 
 
 def dataprep(request, action, id):
+    entities = Entity.objects.all()
     print("***********************************")
     print(action, id)
     print("***********************************")
@@ -300,7 +303,7 @@ def dataprep(request, action, id):
                     entity=entity, filter_col=field_filter['filter_col'], filter_op=field_filter['filter_op'], filter_val=field_filter['filter_val'])
             return HttpResponseRedirect(f'/dataprep/display/{entity.id}')
         return render(request, "radhatamapp/dataprep.html",
-                      context={'entity': entity, 'fields': fields, 'data': data,
+                      context={'entities': entities,'entity': entity, 'fields': fields, 'data': data,
                                'col_names': col_names, 'level_field': level_field+1,
                                'available_functions': available_functions,
                                'filters': filters,
@@ -381,7 +384,7 @@ def dataprep(request, action, id):
                 derived_field = DerivedFieldArgument.objects.filter(field=field.id)
                 entity_columns_meta = get_table_columns(f"{entity.name}_meta")
                 entity_columns_names = [col['name'] for col in entity_columns_meta]
-                return render(request,'radhatamapp/dataprep/existingfuncform.html', context = {'field_functions_id':field_functions_id,'entity':entity,'field':field,'derived_field':derived_field,'entity_columns_names':entity_columns_names})
+                return render(request,'radhatamapp/dataprep/existingfuncform.html', context = {'entities': entities,'field_functions_id':field_functions_id,'entity':entity,'field':field,'derived_field':derived_field,'entity_columns_names':entity_columns_names})
             except Exception as e:
                 logging.getLogger("error_logger").error(
                     "Unable to upload file. "+repr(e))
@@ -439,6 +442,7 @@ def dataprep(request, action, id):
 
 
 def dataviz(request, action, id):
+    entities = Entity.objects.all()
     print("***********************************")
     print(action, id)
     print("***********************************")
@@ -509,7 +513,7 @@ def dataviz(request, action, id):
 
             eda  = pyg.walk(df,hiddenDataSourceConfig=True, vegaTheme='vega',return_html=True)
         return render(request, "radhatamapp/dataviz.html",
-                      context={'entity': entity, 'fields': fields, 'data': data,
+                      context={'entities': entities,'entity': entity, 'fields': fields, 'data': data,
                                'col_names': col_names, 'level_field': level_field+1,
                                'available_functions': available_functions,
                                'filters': filters,
@@ -604,6 +608,7 @@ def fieldfunction(request,action,id):
     function = None
     args_meta = None
     function_all = None
+    entities = Entity.objects.all()
     if id:
         function = FunctionMeta.objects.get(id=id)
         args_meta = ArgumentMeta.objects.filter(function=function)
@@ -670,10 +675,11 @@ def fieldfunction(request,action,id):
         return HttpResponseRedirect(f'/fieldfunction/edit/{id}')
         
         
-    return render(request,'radhatamapp/fieldfunction.html', context={'function_all':function_all,'function':function,'args_meta':args_meta,'action':action})
+    return render(request,'radhatamapp/fieldfunction.html', context={'entities':entities,'function_all':function_all,'function':function,'args_meta':args_meta,'action':action})
 
 def dataalerts(request,action,id):
-    return render(request, 'radhatamapp/dataalerts.html', context={'entities': {}})
+    entities = Entity.objects.all()
+    return render(request, 'radhatamapp/dataalerts.html', context={'entities': entities})
 
 def handle_uploaded_file(f):
     with open('some/file/name.txt', 'wb+') as destination:

@@ -10,9 +10,7 @@
     <a href="{% url 'radhatamapp:index' %}">Go back</a>
 
     <h2>Data Prep</h2>
-    <div id="indicator" class="htmx-indicator alert alert-success" role="alert">
-        <img src="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/AjaxLoader.gif" />
-    </div>
+ 
 
     <div>
 
@@ -193,7 +191,7 @@
                     <button hx-target="#filter-form-{{filter.id}}" hx-indicator="#indicator"
                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                         hx-post="{% url 'radhatamapp:dataviz' action='delete_filter' id=entity.id %}?filter_id={{filter.id}}"
-                        class="btn btn-danger">X</button>
+                        class="btn btn-outline-danger">X</button>
                 </div>
                 {% endfor %}
 

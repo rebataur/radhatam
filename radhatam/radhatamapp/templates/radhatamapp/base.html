@@ -1,30 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
-            integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
-            integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
-            crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"
-            integrity="sha384-mQ93GR66B00ZXjt0YO5KlohRA5SY2XofN4zfuZxLkoj1gXtW8ANNCe9d5Y3eG5eD"
-            crossorigin="anonymous"></script>
-        <script src="https://unpkg.com/htmx.org@1.8.5"></script>
-    
-    </head>
-    <body>
-        <h2>Radatam<a href="/">[]</a></h2>
-        <em>Build Data Apps with AI/ML Capabilities Quickly</em>
-        <hr style="border:solid black 2px">
-{% block content%}
 
-{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"
+        integrity="sha384-mQ93GR66B00ZXjt0YO5KlohRA5SY2XofN4zfuZxLkoj1gXtW8ANNCe9d5Y3eG5eD"
+        crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org@1.8.5"></script>
+
+</head>
+
+<body>
+    <header style="background-color: beige;padding:1em;margin-bottom:1em;border-bottom: 2px solid black;;">
+    <h2 style="background-color: beige;"><a href="/" >rapidam</a></h2>
+    <em style="">Rapid Data Application with AI/ML Capabilities</em>
+</header>
+    <!-- <div class="htmx-indicator alert alert-success " role="alert">
+        <img src="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/AjaxLoader.gif" />
+    </div> -->
+      <div id="indicator"  class="htmx-indicator spinner-border" style="margin-left:50%;width: 3rem; height: 3rem; position:absolute;z-index: 2;" role="status">
+        <span class="sr-only"></span>
+      </div>
+    <div class="row">
+        <div class="col-2">
+            <h6 style="border-bottom:1px solid darkgray;">Data Structure<a href="{% url 'radhatamapp:datastructure' action='create' id=0 %}">[+]</a></h6>
+
+
+            <table>
+
+                {% for entity in entities%}
+                <tr>
+                    <td><a href="{% url 'radhatamapp:datastructure' action='display' id=entity.id %}">{{entity}}</a>
+                    </td>
+                </tr>
+                {% endfor %}
+
+
+            </table>
+
+
+            <h6 style="margin-top:1em;border-bottom:1px solid darkgray;">Data Prep</h6>
+            <table>
+
+                {% for entity in entities%}
+                <tr>
+                    <td><a href="{% url 'radhatamapp:dataprep' action='display' id=entity.id %}">{{entity}}</a></td>
+                </tr>
+                {% endfor %}
+
+
+            </table>
+
+            <h6 style="margin-top:1em;border-bottom:1px solid darkgray;">Data Viz</h6>
+            <table>
+
+                {% for entity in entities%}
+                <tr>
+                    <td><a href="{% url 'radhatamapp:dataviz' action='display' id=entity.id %}">{{entity}}</a></td>
+                </tr>
+                {% endfor %}
+
+
+            </table>
+
+            <h6 style="margin-top:1em;border-bottom:1px solid darkgray;">Data Alerts (Coming Soon)</h6>
+            <table>
+
+                {% for entity in entities%}
+                <tr>
+                    <!-- <td><a href="{% url 'radhatamapp:dataalerts' action='display' id=entity.id %}">{{entity}}</a></td> -->
+                </tr>
+                {% endfor %}
+
+
+            </table>
+
+            <h6 style="margin-top:1em;border-bottom:1px solid darkgray;">Functions</h6>
+            <a href="{% url 'radhatamapp:fieldfunction' action='display' id=0 %}">Field Fucntions</a>
+        </div>
+
+        <div class="col-10">
+            {% block content%}
+
+            {% endblock %}
+        </div>
+    </div>
 </body>
+
 </html>
+
 </html>
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
@@ -38,9 +110,9 @@
     crossorigin="anonymous"></script>
 
 
-    <script>
-        function closeForm(field_function_id){
-            document.getElementById(`edit_params_${field_function_id}`).innerHTML = "";
-        }
-    
-     </script>
+<script>
+    function closeForm(field_function_id) {
+        document.getElementById(`edit_params_${field_function_id}`).innerHTML = "";
+    }
+
+</script>

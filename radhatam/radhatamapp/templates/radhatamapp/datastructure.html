@@ -1,17 +1,14 @@
 {% extends 'radhatamapp/base.html'%}
 {% block content %}
-
-    <a href="{% url 'radhatamapp:index' %}">Go back</a>
+    
     <!-- <img  src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/ajax-loader.gif"/> -->
-    <div id="indicator" class="htmx-indicator alert alert-success" role="alert">
-        Saved
-    </div>
+  
     <br>
-    <h2>Create/Compute Data Structure<a href="{% url 'radhatamapp:fieldfunction' action='createcalculated' id=0 %}">[+]</a></h2>
+    <h4>Create/Compute Data Structure<a href="{% url 'radhatamapp:fieldfunction' action='createcalculated' id=0 %}">[+]</a></h4>
    
    
     {% if not entity %}
-    <h2>FORM</h2>
+    <h4>FORM</h4>
     <form action="{% url 'radhatamapp:datastructure' action='create' id=0%}" method="POST" class="post-form"
         enctype="multipart/form-data">
         {%csrf_token%}
@@ -77,7 +74,7 @@
 
     {% endif %}
 
-    <h2>Upload Data</h2>
+    <h4>Upload Data</h4>
     {% if entity %}
 
 
@@ -90,7 +87,7 @@
     </form>
     {% endif %}
 
-    <h2>Children</h2>
+    <h4>Children</h4>
     {% for field in fields %}
     {{field}}
     {% endfor %}
@@ -99,7 +96,7 @@
     {% if entity %}
 
 
-   <h2>Add Child</h2>
+   <h4>Add Child</h4>
    <form hx-post="{% url 'radhatamapp:datastructure' action='add_child' id=entity.id %}">
     {%csrf_token%}
 
@@ -114,7 +111,7 @@
         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
         hx-post="{% url 'radhatamapp:datastructure' action='add_child' id=entity.id %}">
         <option></option>
-        {% for entity in entities %}
+        {% for entity in entities_excluded %}
         <option {% if entity.name == entity.child %} selected {% endif %} value={{entity.id}}>{{entity.name}} </option>
         {% endfor %}
     </select>
@@ -125,4 +122,5 @@
 </form>
 
 {% endif %}
+
 {% endblock %}

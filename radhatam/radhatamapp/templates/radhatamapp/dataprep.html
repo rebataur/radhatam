@@ -52,12 +52,10 @@
 
     <a href="{% url 'radhatamapp:index' %}">Go back</a>
 
-    <h2>Data Prep</h2>
+    <h4>Data Prep</h4>
 
     
-    <div id="indicator" class="htmx-indicator alert alert-success" role="alert">
-        <img src="https://cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.3/AjaxLoader.gif" />
-    </div>
+ 
   
     <div>
         <h4>Derived Field Function<a href="{% url 'radhatamapp:fieldfunction' action='createderived' id=0 %}">[+]</a></h4>
@@ -111,7 +109,27 @@
             {% endfor %}
 
 
- 
+    <form class="tabled_form" hx-indicator="#indicator" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+            hx-post="{% url 'radhatamapp:dataprep' action='add_derived_field' id=entity.id %}">
+
+            <span class="">Level {{level_field}}</span>
+            <input type="number" hidden name="level_field" value="{{level_field}}" />
+            <select hx-indicator="#indicator" hx-trigger="change" name="function_id"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                hx-post="{% url 'radhatamapp:dataprep' action='get_function_params' id=entity.id %}"
+                hx-target="#function-form">
+                <option></option>
+                {% for function in available_functions %}
+
+                <option value="{{function.id}}">{{function.name}}</option>
+                {% endfor %}
+
+
+            </select>
+            <div id="function-form"></div>
+            <!-- <a href="{% url 'radhatamapp:dataprep' action='add_derived_column' id=entity.id %}">Add Derived Fields</a> -->
+            <button type="submit">Add</button>
+        </form>
  
     </div>
 
@@ -121,12 +139,10 @@
 
    
 
-    <div class="col-6">
         <!-- Filter -->
         <label> <h3>Filters</h3></label>
-        <div>
            
-            <form  method="GET" action="{% url 'radhatamapp:dataprep' action='apply_table_filter' id=entity.id %}">
+            <form  class="form-inline" method="GET" action="{% url 'radhatamapp:dataprep' action='apply_table_filter' id=entity.id %}">
                 {% for filter in filters %}
                 
                 <div id="filter-form-{{filter.id}}">
@@ -196,7 +212,7 @@
                     <button hx-target="#filter-form-{{filter.id}}" hx-indicator="#indicator"
                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                         hx-post="{% url 'radhatamapp:dataprep' action='delete_filter' id=entity.id %}?filter_id={{filter.id}}"
-                        class="btn btn-danger">X</button>
+                        class="btn btn-outline-danger">X</button>
                 </div>
                 {% endfor %}
 
@@ -262,7 +278,6 @@
                 <button type="submit" class="btn btn-success">Apply/Refresh</button>
             </form>
 
-        </div>
 {% if msg %}
 {{msg}}
 {% else %}

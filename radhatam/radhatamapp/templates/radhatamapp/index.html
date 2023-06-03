@@ -1,57 +1,17 @@
 {% extends 'radhatamapp/base.html'%}
 {% block content %}
-    <h1>{{result}}</h1>
-    <h4>Data Structure<a href="{% url 'radhatamapp:datastructure' action='create' id=0 %}">[+]</a></h4>
-      
-  
-    <table>
-       
-            {% for entity in entities%}
-            <tr>
-            <td><a href="{% url 'radhatamapp:datastructure' action='display' id=entity.id %}">{{entity}}</a></td>
-        </tr>
-            {% endfor %}
- 
-        
-    </table>
+<main role="main">
 
+    <section class="jumbotron text-center">
+      <div class="container">
+        <h1 class="jumbotron-heading">Album example</h1>
+        <p class="lead text-muted">Something short and leading about the collection below—its contents, the creator, etc. Make it short and sweet, but not too short so folks don't simply skip over it entirely.</p>
+        <p>
+          <a href="#" class="btn btn-primary my-2">Main call to action</a>
+          <a href="#" class="btn btn-secondary my-2">Secondary action</a>
+        </p>
+      </div>
+    </section>
 
-    <h4>Data Prep</h4>
-    <table>
-       
-            {% for entity in entities%}
-            <tr>
-            <td><a href="{% url 'radhatamapp:dataprep' action='display' id=entity.id %}">{{entity}}</a></td>
-        </tr>
-            {% endfor %}
- 
-        
-    </table>
-
-    <h4>Data Viz</h4>
-    <table>
-       
-            {% for entity in entities%}
-            <tr>
-            <td><a href="{% url 'radhatamapp:dataviz' action='display' id=entity.id %}">{{entity}}</a></td>
-        </tr>
-            {% endfor %}
- 
-        
-    </table>
-
-    <h4>Data Alerts (Coming Soon)</h4>
-    <table>
-       
-            {% for entity in entities%}
-            <tr>
-            <!-- <td><a href="{% url 'radhatamapp:dataalerts' action='display' id=entity.id %}">{{entity}}</a></td> -->
-        </tr>
-            {% endfor %}
- 
-        
-    </table>
-
-    <h4>Functions</h4>
-    <a href="{% url 'radhatamapp:fieldfunction' action='display' id=0 %}">Field Fucntions</a>
+  </main>
 {% endblock %}
