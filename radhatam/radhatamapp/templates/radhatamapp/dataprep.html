@@ -46,15 +46,9 @@
 
 
 
-    <!-- Button trigger modal -->
+    <!-- Button trigger modal --> 
 
-
-
-    <a href="{% url 'radhatamapp:index' %}">Go back</a>
-
-    <h4>Data Prep</h4>
-
-    
+    <h4 style="background-color: rgb(238, 234, 254);border:2px solid black;">Data Preparation</h4>  
  
   
     <div>
@@ -158,16 +152,6 @@
 
                         <option value="not" {% if 'not' == filter.filter_op %}selected{% endif %}>!=</option>
 
-                        <option value="contains" {% if 'contains' == filter.filter_op %}selected{% endif %}>contains
-                        </option>
-
-                        <option value="endswith" {% if 'endswith' == filter.filter_op %}selected{% endif %}>ends with
-                        </option>
-
-                        <option value="startswith" {% if 'startswith' == filter.filter_op %}selected{% endif %}>starts
-                            with
-                        </option>
-
                         <option value="gt" {% if 'gt' == filter.filter_op %}selected{% endif %}>&gt;</option>
 
                         <option value="gte" {% if 'gte' == filter.filter_op %}selected{% endif %}>≥</option>
@@ -176,35 +160,7 @@
 
                         <option value="lte" {% if 'lte' == filter.filter_op %}selected{% endif %}>≤</option>
 
-                        <option value="like" {% if 'like' == filter.filter_op %}selected{% endif %}>like</option>
 
-                        <option value="notlike" {% if 'notlike' == filter.filter_op %}selected{% endif %}>not like
-                        </option>
-
-                        <option value="glob" {% if 'glob' == filter.filter_op %}selected{% endif %}>glob</option>
-
-                        <option value="in" {% if 'in' == filter.filter_op %}selected{% endif %}>in</option>
-
-                        <option value="notin" {% if 'notin' == filter.filter_op %}selected{% endif %}>not in</option>
-
-                        <option value="arraycontains" {% if 'arraycontains' == filter.filter_op %}selected{% endif %}>
-                            array contains
-                        </option>
-
-                        <option value="arraynotcontains" {% if 'arraynotcontains' == filter.filter_op %}selected{% endif %}>array does not contain</option>
-
-                        <option value="date" {% if 'date' == filter.filter_op %}selected{% endif %}>date</option>
-
-                        <option value="isnull" {% if 'isnull' == filter.filter_op %}selected{% endif %}>is null</option>
-
-                        <option value="notnull" {% if 'notnull' == filter.filter_op %}selected{% endif %}>is not null
-                        </option>
-
-                        <option value="isblank" {% if 'isblank' == filter.filter_op %}selected{% endif %}>is blank
-                        </option>
-
-                        <option value="notblank" {% if 'notblank' == filter.filter_op %}selected{% endif %}>is not blank
-                        </option>
 
                     </select>
 
@@ -231,11 +187,6 @@
 
                         <option value="not">!=</option>
 
-                        <option value="contains">contains</option>
-
-                        <option value="endswith">ends with</option>
-
-                        <option value="startswith">starts with</option>
 
                         <option value="gt">&gt;</option>
 
@@ -245,29 +196,6 @@
 
                         <option value="lte">≤</option>
 
-                        <option value="like">like</option>
-
-                        <option value="notlike">not like</option>
-
-                        <option value="glob">glob</option>
-
-                        <option value="in">in</option>
-
-                        <option value="notin">not in</option>
-
-                        <option value="arraycontains">array contains</option>
-
-                        <option value="arraynotcontains">array does not contain</option>
-
-                        <option value="date">date</option>
-
-                        <option value="isnull">is null</option>
-
-                        <option value="notnull">is not null</option>
-
-                        <option value="isblank">is blank</option>
-
-                        <option value="notblank">is not blank</option>
 
                     </select>
 
@@ -340,3 +268,61 @@
     </div>
 
 {% endblock %}
+
+
+
+<!-- <select name="filter_op_{{filter.id}}">
+    <option></option>
+    <option value="exact" {% if 'exact' == filter.filter_op %}selected{% endif %}>=</option>
+
+    <option value="not" {% if 'not' == filter.filter_op %}selected{% endif %}>!=</option>
+
+    <option value="contains" {% if 'contains' == filter.filter_op %}selected{% endif %}>contains
+    </option>
+
+    <option value="endswith" {% if 'endswith' == filter.filter_op %}selected{% endif %}>ends with
+    </option>
+
+    <option value="startswith" {% if 'startswith' == filter.filter_op %}selected{% endif %}>starts
+        with
+    </option>
+
+    <option value="gt" {% if 'gt' == filter.filter_op %}selected{% endif %}>&gt;</option>
+
+    <option value="gte" {% if 'gte' == filter.filter_op %}selected{% endif %}>≥</option>
+
+    <option value="lt" {% if 'lt' == filter.filter_op %}selected{% endif %}>&lt;</option>
+
+    <option value="lte" {% if 'lte' == filter.filter_op %}selected{% endif %}>≤</option>
+
+    <option value="like" {% if 'like' == filter.filter_op %}selected{% endif %}>like</option>
+
+    <option value="notlike" {% if 'notlike' == filter.filter_op %}selected{% endif %}>not like
+    </option>
+
+    <option value="glob" {% if 'glob' == filter.filter_op %}selected{% endif %}>glob</option>
+
+    <option value="in" {% if 'in' == filter.filter_op %}selected{% endif %}>in</option>
+
+    <option value="notin" {% if 'notin' == filter.filter_op %}selected{% endif %}>not in</option>
+
+    <option value="arraycontains" {% if 'arraycontains' == filter.filter_op %}selected{% endif %}>
+        array contains
+    </option>
+
+    <option value="arraynotcontains" {% if 'arraynotcontains' == filter.filter_op %}selected{% endif %}>array does not contain</option>
+
+    <option value="date" {% if 'date' == filter.filter_op %}selected{% endif %}>date</option>
+
+    <option value="isnull" {% if 'isnull' == filter.filter_op %}selected{% endif %}>is null</option>
+
+    <option value="notnull" {% if 'notnull' == filter.filter_op %}selected{% endif %}>is not null
+    </option>
+
+    <option value="isblank" {% if 'isblank' == filter.filter_op %}selected{% endif %}>is blank
+    </option>
+
+    <option value="notblank" {% if 'notblank' == filter.filter_op %}selected{% endif %}>is not blank
+    </option>
+
+</select> -->

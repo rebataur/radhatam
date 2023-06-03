@@ -15,11 +15,15 @@
         integrity="sha384-mQ93GR66B00ZXjt0YO5KlohRA5SY2XofN4zfuZxLkoj1gXtW8ANNCe9d5Y3eG5eD"
         crossorigin="anonymous"></script>
     <script src="https://unpkg.com/htmx.org@1.8.5"></script>
-
+    
+  <!-- <link
+      rel="stylesheet"
+      href="https://unpkg.com/papercss@1.9.2/dist/paper.min.css"
+    /> -->
 </head>
 
 <body>
-    <header style="background-color: beige;padding:1em;margin-bottom:1em;border-bottom: 2px solid black;;">
+    <header style="background-color: beige;padding:1em;border-bottom: 2px solid black;;">
     <h2 style="background-color: beige;"><a href="/" >rapidam</a></h2>
     <em style="">Rapid Data Application with AI/ML Capabilities</em>
 </header>
@@ -30,7 +34,7 @@
         <span class="sr-only"></span>
       </div>
     <div class="row">
-        <div class="col-2">
+        <div class="col-2" style="background-color: lightgray;">
             <h6 style="border-bottom:1px solid darkgray;">Data Structure<a href="{% url 'radhatamapp:datastructure' action='create' id=0 %}">[+]</a></h6>
 
 

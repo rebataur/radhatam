@@ -28,11 +28,16 @@ FUNCTION_TYPES = (
 OP_TYPES = (
     ('eq', 'Exact'),
     ('not', 'Not'),
-    ('lt','Less Than')
+    ('gt','Greater Than'),
+    ('gte','Greater Than Equal To'),
+    ('lt','Less Than'),
+    ('lte','Less Than Equal'),
 
 )
 
-SQL_OP_TYPES = {'exact': '=', 'not': '!=','lt':'<'}
+
+SQL_OP_TYPES = {'exact': '=', 'not': '!=','gt':'>','gte':'>=','lt':'<','lte':'<='}
+
 
 
 class Entity(models.Model):
