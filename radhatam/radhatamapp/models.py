@@ -1,5 +1,5 @@
 from django.db import models
-
+from datetime import date
 # Create your models here.
 DATA_TYPES = (
     ('TEXT', 'Text'),
@@ -56,7 +56,7 @@ class FunctionMeta(models.Model):
         max_length=20, choices=DATA_TYPES, default='TEXT')
     
     function_code = models.TextField()
-    return_sql = models.TextField(max_length=1024)
+    return_sql = models.TextField(max_length=1024)   
 
     def __str__(self):
         return self.name
@@ -90,6 +90,7 @@ class Field(models.Model):
         return self.name
 
 
+
 class FieldFilter(models.Model):
     entity = models.ForeignKey(Entity, on_delete=models.CASCADE, null=False)
     filter_col = models.CharField(max_length=30, null=False)
@@ -104,10 +105,13 @@ class FieldFilter(models.Model):
 class DerivedFieldArgument(models.Model):
     field = models.ForeignKey(Field, on_delete=models.CASCADE, null=True)
     argument_name = models.CharField(max_length=30, null=True)
-    argument_value = models.CharField(max_length=120, null=True)
+    argument_value = models.TextField(null=True)
     argument_type = models.CharField(max_length=30, null=True)
 
     def __str__(self):
         return str(self.id) + " " + self.field.name + " -> " + self.argument_name + " " + self.argument_value + " " + self.argument_type
 
 
+class DataScienceTraining(models.Model):
+    last_run = models.DateTimeField()
+    model_name = models.BinaryField()

@@ -4,11 +4,10 @@
     <!-- <img  src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/ajax-loader.gif"/> -->
 
     <h4 style="background-color: rgb(235, 250, 222);border:2px solid black;">Data Structure</h4>
-    <h4>Create/Compute Data Structure<a href="{% url 'radhatamapp:fieldfunction' action='createcalculated' id=0 %}">[+]</a></h4>
+    <h4>Create/Compute Data Structure</h4>
    
    
     {% if not entity %}
-    <h4>FORM</h4>
     <form action="{% url 'radhatamapp:datastructure' action='create' id=0%}" method="POST" class="post-form"
         enctype="multipart/form-data">
         {%csrf_token%}
@@ -51,11 +50,11 @@
     <form hx-indicator="#indicator" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
     hx-post="{% url 'radhatamapp:datastructure' action='add_calculated_field' id=entity.id %}">
 
-    <span class="">Derived Field</span>
+    <span class="">Derived Field<a href="{% url 'radhatamapp:fieldfunction' action='createcalculated' id=0 %}">[+]</a></span>
     <input type="number" hidden name="level_field" value="{{level_field}}" />
     <select hx-indicator="#indicator" hx-trigger="change" name="function_id"
         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-        hx-post="{% url 'radhatamapp:dataprep' action='get_function_params' id=entity.id %}"
+        hx-post="{% url 'radhatamapp:datapreparation' action='get_function_params' id=entity.id %}"
         hx-target="#function-form">
         <option></option>
         {% for function in functions_calculated_meta %}
@@ -66,7 +65,7 @@
 
     </select>
     <div id="function-form"></div>
-    <!-- <a href="{% url 'radhatamapp:dataprep' action='add_derived_column' id=entity.id %}">Add Derived Fields</a> -->
+    <!-- <a href="{% url 'radhatamapp:datapreparation' action='add_derived_column' id=entity.id %}">Add Derived Fields</a> -->
     <button type="submit">Add</button>
 </form>
 <tr><td><button hx-indicator="#indicator" hx-swap="none" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'

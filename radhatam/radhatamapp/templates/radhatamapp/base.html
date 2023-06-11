@@ -20,11 +20,28 @@
       rel="stylesheet"
       href="https://unpkg.com/papercss@1.9.2/dist/paper.min.css"
     /> -->
+    <style>
+        .first-color { 
+	background: #e4f1fe; 
+}
+	
+.second-color { 
+	background: #8dc6ff; 
+}
+
+.third-color { 
+	background: #22313f; 
+}
+
+.fourth-color { 
+	background: #34495e; 
+}
+    </style>
 </head>
 
 <body>
-    <header style="background-color: #F5F0BB;padding:1em;border-bottom: 2px solid black;;">
-    <h2 style="background-color: #F5F0BB;font-family:candara"><a href="/" >/rapidiam/</a></h2>
+    <header class="fourth-color"  style="color:white;padding:1em;border-bottom: 2px solid black;;">
+    <h2 class="fourth-color" style="color:white;font-family:candara"><a style="color:white;" href="/" >/rapidiam/</a></h2>
     <em style="">Rapid Data Application with AI/ML Capabilities</em>
 </header>
     <!-- <div class="htmx-indicator alert alert-success " role="alert">
@@ -34,8 +51,8 @@
         <span class="sr-only"></span>
       </div>
     <div class="row">
-        <div class="col-2" style="background-color:#F9E0BB">
-            <h6 style="border-bottom:1px solid darkgray;">Data Structure<a href="{% url 'radhatamapp:datastructure' action='create' id=0 %}">[+]</a></h6>
+        <div class="col-2" style="background-color:#e4f1fe">
+            <h6 style="border-bottom:1px solid darkgray;">Data Ingestion<a href="{% url 'radhatamapp:datastructure' action='create' id=0 %}">[+]</a></h6>
 
 
             <table>
@@ -51,19 +68,22 @@
             </table>
 
 
-            <h6 style="margin-top:1em;border-bottom:1px solid darkgray;">Data Prep</h6>
+            <h6 style="margin-top:1em;border-bottom:1px solid darkgray;">Data Preparation</h6>
             <table>
 
                 {% for entity in entities%}
                 <tr>
-                    <td><a href="{% url 'radhatamapp:dataprep' action='display' id=entity.id %}">{{entity}}</a></td>
+                    <td><a href="{% url 'radhatamapp:datapreparation' action='display' id=entity.id %}">{{entity}}</a></td>
                 </tr>
                 {% endfor %}
 
 
             </table>
 
-            <h6 style="margin-top:1em;border-bottom:1px solid darkgray;">Data Viz</h6>
+       
+
+
+            <h6 style="margin-top:1em;border-bottom:1px solid darkgray;">Data Visualization</h6>
             <table>
 
                 {% for entity in entities%}
@@ -75,17 +95,17 @@
 
             </table>
 
-            <h6 style="margin-top:1em;border-bottom:1px solid darkgray;">Data Alerts (Coming Soon)</h6>
+            <!-- <h6 style="margin-top:1em;border-bottom:1px solid darkgray;">Data Alerts (Coming Soon)</h6>
             <table>
 
                 {% for entity in entities%}
                 <tr>
-                    <!-- <td><a href="{% url 'radhatamapp:dataalerts' action='display' id=entity.id %}">{{entity}}</a></td> -->
+                    <td><a href="{% url 'radhatamapp:dataalerts' action='display' id=entity.id %}">{{entity}}</a></td>
                 </tr>
                 {% endfor %}
 
 
-            </table>
+            </table> -->
 
             <h6 style="margin-top:1em;border-bottom:1px solid darkgray;">Functions</h6>
             <a href="{% url 'radhatamapp:fieldfunction' action='display' id=0 %}">Field Fucntions</a>

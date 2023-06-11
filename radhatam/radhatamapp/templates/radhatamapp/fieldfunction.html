@@ -40,9 +40,13 @@
         height: 50px;
         width: 100%;
     }
+    li.error{
+        color:red;
+    }
+
 </style>
 
-<h4>New Field Function</h4>
+<h4>Function</h4>
 {% if action == 'display'  %}
     <table class="table">
     {% for function in function_all %}
@@ -56,7 +60,7 @@
 </table>
 
 
-{% elif action == 'createderived' or action == 'createcalculated' %}
+{% elif action == 'createderived' or action == 'createcalculated' or action == 'createdatascience' %}
 <form method="POST" action="{% url 'radhatamapp:fieldfunction' action=action id=0 %}" onsubmit="onFormSubmit();">
 {% csrf_token %}
 <label>Name</label>
@@ -65,9 +69,21 @@
 </form>
 {% else %}
 <form method="POST" action="{% url 'radhatamapp:fieldfunction' action='edit' id=function.id %}" onsubmit="onFormSubmit();">
-
 {% csrf_token %}
-    <input class="btn btn-success float-end" type="submit"/>
+    <!-- <input class="btn btn-success float-end" type="submit" value="save"/>
+  
+    <input class="btn btn-success float-end" type="submit" value="delete"/> -->
+  
+    <input class="btn btn-success float-end" type="submit" name="submit_action_edit" value="Edit"/>
+    
+    <button class="btn btn-outline-danger float-end" type="submit" name="submit_action_delete" value="Delete">X</button>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+              <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
         <label>Name</label>
         <input type="text" value="{{function.name}}" name="name"/>
         

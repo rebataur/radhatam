@@ -10,6 +10,7 @@ from django.db import connection
 from django.conf import settings
 import psycopg2
 from sqlalchemy import create_engine
+from django.contrib import messages
 
 logger = logging.getLogger(__name__)
 # Create your views here.
@@ -225,7 +226,7 @@ def edit_fieldtype(request, id):
         return HttpResponse("<option>selected</option>")
 
 
-def dataprep(request, action, id):
+def datapreparation(request, action, id):
     entities = Entity.objects.all()
     print("***********************************")
     print(action, id)
@@ -301,8 +302,8 @@ def dataprep(request, action, id):
             for field_filter in field_filter_array:
                 FieldFilter.objects.create(
                     entity=entity, filter_col=field_filter['filter_col'], filter_op=field_filter['filter_op'], filter_val=field_filter['filter_val'])
-            return HttpResponseRedirect(f'/dataprep/display/{entity.id}')
-        return render(request, "radhatamapp/dataprep.html",
+            return HttpResponseRedirect(f'/datapreparation/display/{entity.id}')
+        return render(request, "radhatamapp/datapreparation.html",
                       context={'entities': entities,'entity': entity, 'fields': fields, 'data': data,
                                'col_names': col_names, 'level_field': level_field+1,
                                'available_functions': available_functions,
@@ -384,7 +385,7 @@ def dataprep(request, action, id):
                 derived_field = DerivedFieldArgument.objects.filter(field=field.id)
                 entity_columns_meta = get_table_columns(f"{entity.name}_meta")
                 entity_columns_names = [col['name'] for col in entity_columns_meta]
-                return render(request,'radhatamapp/dataprep/existingfuncform.html', context = {'entities': entities,'field_functions_id':field_functions_id,'entity':entity,'field':field,'derived_field':derived_field,'entity_columns_names':entity_columns_names})
+                return render(request,'radhatamapp/datapreparation/existingfuncform.html', context = {'entities': entities,'field_functions_id':field_functions_id,'entity':entity,'field':field,'derived_field':derived_field,'entity_columns_names':entity_columns_names})
             except Exception as e:
                 logging.getLogger("error_logger").error(
                     "Unable to upload file. "+repr(e))
@@ -407,7 +408,11 @@ def dataprep(request, action, id):
                             html += f'<option value="{entity_col}">{entity_col}</option>'
                         html += '</select>'
                     else:
-                        html += f'<input type="{arg.type}" name="{arg.name}"/>'
+                        if arg.name == "data_sql":
+                            val = generate_cte_sql(id=entity.id)
+                            html += f'<input type="{arg.type}" name="{arg.name}" value="{val}"/>' 
+                        else:
+                            html += f'<input type="{arg.type}" name="{arg.name}"/>' 
                 return HttpResponse(html)
             except Exception as e:
                 logging.getLogger("error_logger").error(
@@ -439,6 +444,7 @@ def dataprep(request, action, id):
                 field=derived_field, argument_name=parg['name'], argument_value=parg['value'], argument_type=parg['type']).save()
         html = f'<span class="badge text-bg-primary">{function.name}</span>'
         return HttpResponse(html)
+
 
 
 def dataviz(request, action, id):
@@ -629,23 +635,39 @@ def fieldfunction(request,action,id):
             func.save()
             return HttpResponseRedirect(f'/fieldfunction/edit/{func.id}')
 
-        if action == 'edit':
-            form_params = request.POST
-            name = form_params['name']
-            return_type = form_params['return_type']
-            return_sql = form_params['return_sql']
-            function_code = form_params['function_code']
-
+    
             
-            function =   FunctionMeta.objects.get(id=id)
-            function.name = name
-            function.return_type = return_type
-            function.return_sql = return_sql
-            function.function_code = function_code
-            function.save()
-            if function_code and len(function_code) > 0:
-                execute_raw_query(function_code)
+        if action == 'edit':
+            if 'submit_action_delete' in request.POST:
+                # if used in derived field then don't delete
+                function =   FunctionMeta.objects.get(id=id)
+                field =  Field.objects.filter(function=function).values_list('name',flat=True)
+                field_names = [f for f in field ]
+                field_names_joined = ','.join(field_names)
+                if len(field_names) > 0:
+                    messages.error(request, f"Following fields references this functions [{field_names_joined}], please delete them first")
+                else:
+                    function.delete()
+                    return HttpResponseRedirect(f'/fieldfunction/display/0')
 
+            elif 'submit_action_edit' in request.POST:       
+                form_params = request.POST
+                name = form_params['name']
+                return_type = form_params['return_type']
+                return_sql = form_params['return_sql']
+                function_code = form_params['function_code']
+
+                
+                function =   FunctionMeta.objects.get(id=id)
+                function.name = name
+                function.return_type = return_type
+                function.return_sql = return_sql
+                function.function_code = function_code
+                function.save()
+                if function_code and len(function_code) > 0:
+                    execute_raw_query(function_code)
+
+        
         if action == 'change_param_datatype':
             print(request.POST)
             param_name = request.POST['param_name']
@@ -674,7 +696,7 @@ def fieldfunction(request,action,id):
     
         return HttpResponseRedirect(f'/fieldfunction/edit/{id}')
         
-        
+    
     return render(request,'radhatamapp/fieldfunction.html', context={'entities':entities,'function_all':function_all,'function':function,'args_meta':args_meta,'action':action})
 
 def dataalerts(request,action,id):
