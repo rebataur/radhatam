@@ -37,7 +37,7 @@ def index(request):
     return render(request, 'radhatamapp/index.html', context={'entities': entities})
 
 
-def datastructure(request, action, id):
+def dataingestion(request, action, id):
     data = {}
     entity = None
     fields = None
@@ -51,7 +51,8 @@ def datastructure(request, action, id):
         form = UploadFileForm()
         dataupload_form = UploadFileDataForm()
         entities_excluded = Entity.objects.exclude(id=id).all()
-        return render(request, "radhatamapp/datastructure.html", context={'entities': entities,'form': form, 'entity': entity, 'entities': entities, 'fields': fields, 'dtypes': DATA_TYPES, 'dataupload_form': dataupload_form,'functions_calculated_meta':functions_calculated_meta})
+        print(entities_excluded)
+        return render(request, "radhatamapp/dataingestion.html", context={'entities': entities,'form': form, 'entity': entity, 'entities': entities, 'fields': fields, 'dtypes': DATA_TYPES, 'dataupload_form': dataupload_form,'functions_calculated_meta':functions_calculated_meta,'entities_excluded':entities_excluded})
     # if not GET, then proceed
     if action == 'create':
         try:
@@ -75,7 +76,7 @@ def datastructure(request, action, id):
             Field.objects.create(
                 actual_name=f'{entity.name}_file_name',
                 name=f'{entity.name}_file_name', entity=entity).save()
-            return HttpResponseRedirect(f'/datastructure/display/{entity.id}')
+            return HttpResponseRedirect(f'/dataingestion/display/{entity.id}')
         # return HttpResponseRedirect(reverse("radhatamapp:create_entity"))
 
         except Exception as e:
@@ -83,7 +84,19 @@ def datastructure(request, action, id):
                 "Unable to upload file. "+repr(e))
             messages.error(request, "Unable to upload file. "+repr(e))
     
-    
+    if action == 'edit':
+        if 'submit_action_delete' in request.POST:
+            # if used in derived field then don't delete
+            entity = Entity.objects.get(id=id)
+            child_fields = Field.objects.filter(child_entity_id=entity.id)
+            child_fields_entity_names = ','.join([c.entity.name for c in child_fields])
+            child_fields_names = ','.join([c.name for c in child_fields])
+            if len(child_fields) > 0:
+                messages.error(request, f"This Entity is referenced in following Entity [{child_fields_entity_names}] with field [{child_fields_names}]")
+            else:
+                entity.delete()
+                return HttpResponseRedirect(f'/')
+
     if action == 'add_calculated_field':
         derived_field_name = request.POST['derived_field_name']
         function_id = request.POST['function_id']
@@ -185,7 +198,7 @@ def datastructure(request, action, id):
             logging.getLogger("error_logger").error(
                 "Unable to upload file. "+repr(e))
             messages.error(request, "Unable to upload file. "+repr(e))
-        return HttpResponseRedirect(f'/datastructure/display/{id}')
+        return HttpResponseRedirect(f'/dataingestion/display/{id}')
     if action == 'add_child':
         print(request.POST)
         if request.POST['child_entity_id'] and not request.POST['child_field_id']:
@@ -207,7 +220,7 @@ def datastructure(request, action, id):
 
             # field = Field.objects.get(id=parent)
         return HttpResponse("done")
-    return HttpResponseRedirect(reverse("radhatamapp:datastructure", kwargs={'action': 'display', 'id': id}))
+    return HttpResponseRedirect(reverse("radhatamapp:dataingestion", kwargs={'action': 'display', 'id': id}))
 
 
 def edit_fieldtype(request, id):
@@ -702,6 +715,8 @@ def fieldfunction(request,action,id):
 def dataalerts(request,action,id):
     entities = Entity.objects.all()
     return render(request, 'radhatamapp/dataalerts.html', context={'entities': entities})
+
+
 
 def handle_uploaded_file(f):
     with open('some/file/name.txt', 'wb+') as destination:

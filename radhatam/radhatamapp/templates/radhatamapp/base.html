@@ -41,7 +41,7 @@
 
 <body>
     <header class="fourth-color"  style="color:white;padding:1em;border-bottom: 2px solid black;;">
-    <h2 class="fourth-color" style="color:white;font-family:candara"><a style="color:white;" href="/" >/rapidiam/</a></h2>
+    <h2 class="fourth-color" style="color:white;font-family:candara"><a style="color:white;" href="/" >rapidiam</a></h2>
     <em style="">Rapid Data Application with AI/ML Capabilities</em>
 </header>
     <!-- <div class="htmx-indicator alert alert-success " role="alert">
@@ -52,14 +52,14 @@
       </div>
     <div class="row">
         <div class="col-2" style="background-color:#e4f1fe">
-            <h6 style="border-bottom:1px solid darkgray;">Data Ingestion<a href="{% url 'radhatamapp:datastructure' action='create' id=0 %}">[+]</a></h6>
+            <h6 style="border-bottom:1px solid darkgray;">Data Ingestion<a href="{% url 'radhatamapp:dataingestion' action='create' id=0 %}">[+]</a></h6>
 
 
             <table>
 
                 {% for entity in entities%}
                 <tr>
-                    <td><a href="{% url 'radhatamapp:datastructure' action='display' id=entity.id %}">{{entity}}</a>
+                    <td><a href="{% url 'radhatamapp:dataingestion' action='display' id=entity.id %}">{{entity}}</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -95,20 +95,14 @@
 
             </table>
 
-            <!-- <h6 style="margin-top:1em;border-bottom:1px solid darkgray;">Data Alerts (Coming Soon)</h6>
+          
+            <h6 style="margin-top:1em;border-bottom:1px solid darkgray;">Admin</h6>
             <table>
-
-                {% for entity in entities%}
                 <tr>
-                    <td><a href="{% url 'radhatamapp:dataalerts' action='display' id=entity.id %}">{{entity}}</a></td>
+                    <td><a href="{% url 'radhatamapp:fieldfunction' action='display' id=0 %}">Field Fucntions</a></td>
                 </tr>
-                {% endfor %}
+            </table>
 
-
-            </table> -->
-
-            <h6 style="margin-top:1em;border-bottom:1px solid darkgray;">Functions</h6>
-            <a href="{% url 'radhatamapp:fieldfunction' action='display' id=0 %}">Field Fucntions</a>
         </div>
 
         <div class="col-10">
